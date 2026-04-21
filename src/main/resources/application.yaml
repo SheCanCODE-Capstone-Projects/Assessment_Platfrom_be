@@ -1,3 +1,14 @@
 spring:
-  application:
-    name: assessment-platform-backend
+  datasource:
+    url: jdbc:postgresql://localhost:5432/assessment_platform
+    username: postgres
+    password: uwera@2003
+    driver-class-name: org.postgresql.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+
+server:
+  port: 8080
