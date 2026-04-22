@@ -5,7 +5,7 @@ import com.talentprobe.assessment.enums.Status;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
 import lombok.*;
-
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.time.LocalDateTime;
 @Entity
 @Table(name = "users")
@@ -27,8 +27,8 @@ public class User {
 
     @NotBlank
     @Column(nullable = false)
+    @JsonIgnore
     private String password;
-
     @Enumerated(EnumType.STRING)
     private Role role;
 
