@@ -2,11 +2,13 @@ package com.talentprobe.assessment.entity;
 
 import com.talentprobe.assessment.enums.Role;
 import com.talentprobe.assessment.enums.Status;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
 import lombok.*;
-import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import java.time.LocalDateTime;
+
 @Entity
 @Table(name = "users")
 @Data
@@ -14,29 +16,38 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @Builder
 public class User {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long userId;
-    @NotBlank
+
+    @NotBlank(message = "Name is required")
     @Column(nullable = false)
     private String name;
-    @Email
-    @NotBlank
+
+    @Email(message = "Email should be valid")
+    @NotBlank(message = "Email is required")
     @Column(unique = true, nullable = false)
     private String email;
 
-    @NotBlank
+    @NotBlank(message = "Password is required")
     @Column(nullable = false)
-    @JsonIgnore
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private String password;
-    @Enumerated(EnumType.STRING)
-    private Role role;
 
+    @Builder.Default
     @Enumerated(EnumType.STRING)
-    private Status status;
+    @Column(nullable = false)
+    private Role role = Role.CANDIDATE;
 
-    @Column(updatable = false)
-    private LocalDateTime createdAt;
+    @Builder.Default
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private Status status = Status.ACTIVE;
+
+    @Builder.Default
+    @Column(updatable = false, nullable = false)
+    private LocalDateTime createdAt = LocalDateTime.now(); // <-- Back to manual default
 
     private String idDocumentPath;
 

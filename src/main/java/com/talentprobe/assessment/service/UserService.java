@@ -2,14 +2,12 @@ package com.talentprobe.assessment.service;
 
 import com.talentprobe.assessment.dto.UserDto;
 import com.talentprobe.assessment.entity.User;
-import com.talentprobe.assessment.enums.Role;
-import com.talentprobe.assessment.enums.Status;
 import com.talentprobe.assessment.mapper.UserMapper;
 import com.talentprobe.assessment.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.crypto.password.PasswordEncoder; // <-- ADD
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
@@ -17,23 +15,17 @@ import java.util.List;
 public class UserService {
 
     private final UserRepository userRepository;
-
     private final UserMapper userMapper;
+    private final PasswordEncoder passwordEncoder; // <-- ADD
 
     public User createUser(UserDto dto) {
-
         User user = userMapper.toEntity(dto);
-
-        user.setStatus(Status.ACTIVE);
-        user.setCreatedAt(LocalDateTime.now());
-
-        user.setRole(Role.CANDIDATE);
+        user.setPassword(passwordEncoder.encode(dto.getPassword()));
 
         return userRepository.save(user);
     }
 
     public List<User> getAllUsers() {
-
         return userRepository.findAll();
     }
 
