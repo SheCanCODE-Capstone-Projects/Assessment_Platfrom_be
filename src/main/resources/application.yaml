@@ -1,8 +1,11 @@
 spring:
   datasource:
-    url: jdbc:postgresql://localhost:5432/assessment_platform
-    username: postgres
-    password: uwera@2003
+    url: ${DB_URL}
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
+#    url: jdbc:postgresql://localhost:5432/assessment_platform
+#    username: postgres
+#    password: uwera@2003
     driver-class-name: org.postgresql.Driver
 
   jpa:
