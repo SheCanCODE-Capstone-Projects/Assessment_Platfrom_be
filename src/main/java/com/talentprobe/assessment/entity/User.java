@@ -6,8 +6,10 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
 import lombok.*;
+import org.hibernate.annotations.UuidGenerator;
 
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 @Entity
 @Table(name = "users")
@@ -18,8 +20,9 @@ import java.time.LocalDateTime;
 public class User {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long userId;
+    @GeneratedValue
+    @UuidGenerator
+    private UUID userId;
 
     @NotBlank(message = "Name is required")
     @Column(nullable = false)
@@ -29,6 +32,10 @@ public class User {
     @NotBlank(message = "Email is required")
     @Column(unique = true, nullable = false)
     private String email;
+
+    @Pattern(regexp = "^\\+?[0-9]{10,15}$", message = "Phone must be 10-15 digits")
+    @Column(nullable = true)
+    private String phoneNumber;
 
     @NotBlank(message = "Password is required")
     @Column(nullable = false)
@@ -44,12 +51,10 @@ public class User {
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private Status status = Status.ACTIVE;
-
     @Builder.Default
     @Column(updatable = false, nullable = false)
-    private LocalDateTime createdAt = LocalDateTime.now(); // <-- Back to manual default
+    private LocalDateTime createdAt = LocalDateTime.now();
 
+    @Column(nullable = true)
     private String idDocumentPath;
-
-    private String profileImagePath;
 }
