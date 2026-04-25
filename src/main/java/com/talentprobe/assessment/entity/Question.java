@@ -1,4 +1,4 @@
 package com.talentprobe.assessment.entity;
 
-public class Question {
+public class  Question {
 }
