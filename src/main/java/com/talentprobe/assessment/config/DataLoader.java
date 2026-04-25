@@ -6,10 +6,12 @@ import com.talentprobe.assessment.enums.Status;
 import com.talentprobe.assessment.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.CommandLineRunner;
+import org.springframework.context.annotation.Profile; // <-- ADD THIS IMPORT
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
 @Component
+@Profile("!prod")
 @RequiredArgsConstructor
 public class DataLoader implements CommandLineRunner {
 
@@ -18,17 +20,16 @@ public class DataLoader implements CommandLineRunner {
 
     @Override
     public void run(String... args) {
-        // 1. BEST PRACTICE: Create first admin on startup if none exists
         if (!userRepository.existsByRole(Role.ADMIN)) {
             User superAdmin = User.builder()
                     .name("System Admin")
                     .email("aria@gmail.com")
-                    .password(passwordEncoder.encode("abcd")) // 2. CHANGE THIS AFTER DEPLOY
+                    .password(passwordEncoder.encode("abcd"))
                     .role(Role.ADMIN)
                     .status(Status.ACTIVE)
                     .build();
             userRepository.save(superAdmin);
-            System.out.println("Admin created: ari@gmail.com / abcd");
+            System.out.println("Admin created: aria@gmail.com / abcd");
         }
     }
 }
