@@ -15,6 +15,5 @@ public class UserResponseDto {
     private Role role;
     private Status status;
     private LocalDateTime createdAt;
-    private String idDocumentPath; // 1. Role: Frontend shows "Upload" button if null
-    // 2. NO PASSWORD: This is why we need ResponseDto. Never leak hash
+    private String idDocumentPath;
 }

@@ -4,7 +4,7 @@ import jakarta.validation.constraints.*;
 import lombok.Data;
 
 @Data
-public class UserDto { // 1. Role: KEEPING NAME UserDto like you requested
+public class UserDto {
     @NotBlank(message = "Name is required")
     private String name;
 
@@ -14,8 +14,7 @@ public class UserDto { // 1. Role: KEEPING NAME UserDto like you requested
 
     @Pattern(regexp = "^\\+?[0-9]{10,15}$", message = "Phone must be 10-15 digits")
     @NotBlank(message = "Phone is required for candidates")
-    private String phoneNumber; // 2. Role: Required for candidate per lecturer
+    private String phoneNumber;
 
-    // 3. NO PASSWORD: Candidate doesn't choose password. You generate temp one in Service
-    // 4. NO ROLE: Service forces Role.CANDIDATE. Prevents user from making themselves admin
+
 }
