@@ -6,13 +6,10 @@ import lombok.Data;
 
 @Data
 public class LoginRequest {
-
-    // Email used to identify admin
-    @Email(message = "Email should be valid")
     @NotBlank(message = "Email is required")
+    @Email(message = "Email must be valid")
     private String email;
 
-    // Password entered by admin
     @NotBlank(message = "Password is required")
     private String password;
 }

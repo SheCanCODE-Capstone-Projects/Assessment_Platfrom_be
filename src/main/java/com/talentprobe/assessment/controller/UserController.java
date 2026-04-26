@@ -73,7 +73,7 @@ public class UserController {
     public ResponseEntity<ApiResponse<UserResponseDto>> activateUser(@PathVariable UUID id) {
         UserResponseDto updated = userService.updateUserStatus(id, Status.ACTIVE);
         return ResponseEntity.ok(
-                ApiResponse.success("User activated successfully", updated)
+                ApiResponse.success(" activated successfully", updated)
         );
     }
 
