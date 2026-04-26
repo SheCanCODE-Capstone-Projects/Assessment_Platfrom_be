@@ -2,7 +2,9 @@ package com.talentprobe.assessment.controller;
 
 import com.talentprobe.assessment.dto.ApiResponse;
 import com.talentprobe.assessment.dto.UserDto;
+import com.talentprobe.assessment.dto.UserPatchRequest;
 import com.talentprobe.assessment.dto.UserResponseDto;
+import com.talentprobe.assessment.enums.Status;
 import com.talentprobe.assessment.service.UserService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -47,6 +49,31 @@ public class UserController {
         UserResponseDto updated = userService.updateUser(id, dto);
         return ResponseEntity.ok(
                 ApiResponse.success("successfully Updated ", updated)
+        );
+    }
+    @PatchMapping("/{id}")
+    public ResponseEntity<ApiResponse<UserResponseDto>> patchUser(
+            @PathVariable UUID id,
+            @RequestBody UserPatchRequest dto) {
+
+        UserResponseDto updated = userService.patchUser(id, dto);
+        return ResponseEntity.ok(
+                ApiResponse.success("Profile updated successfully", updated)
+        );
+    }
+
+    @PatchMapping("/{id}/deactivate")
+    public ResponseEntity<ApiResponse<UserResponseDto>> deactivateUser(@PathVariable UUID id) {
+        UserResponseDto updated = userService.updateUserStatus(id, Status.INACTIVE);
+        return ResponseEntity.ok(
+                ApiResponse.success("User deactivated successfully", updated)
+        );
+    }
+    @PatchMapping("/{id}/activate")
+    public ResponseEntity<ApiResponse<UserResponseDto>> activateUser(@PathVariable UUID id) {
+        UserResponseDto updated = userService.updateUserStatus(id, Status.ACTIVE);
+        return ResponseEntity.ok(
+                ApiResponse.success("User activated successfully", updated)
         );
     }
 

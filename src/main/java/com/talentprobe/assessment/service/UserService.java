@@ -1,6 +1,7 @@
 package com.talentprobe.assessment.service;
 
 import com.talentprobe.assessment.dto.UserDto;
+import com.talentprobe.assessment.dto.UserPatchRequest;
 import com.talentprobe.assessment.dto.UserResponseDto;
 import com.talentprobe.assessment.entity.User;
 import com.talentprobe.assessment.enums.Role;
@@ -54,11 +55,32 @@ public class UserService {
         user.setPhoneNumber(dto.getPhoneNumber());
         return userMapper.toDto(userRepository.save(user));
     }
+    public UserResponseDto patchUser(UUID id, UserPatchRequest dto) {
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
 
+        if (dto.getName() != null) {
+            user.setName(dto.getName());
+        }
+        if (dto.getPhoneNumber() != null) {
+            user.setPhoneNumber(dto.getPhoneNumber());
+        }
+
+        return userMapper.toDto(userRepository.save(user));
+    }
+
+    public UserResponseDto updateUserStatus(UUID id, Status status) {
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+
+        user.setStatus(status);
+        return userMapper.toDto(userRepository.save(user));
+    }
     public void deleteUser(UUID id) {
         if (!userRepository.existsById(id)) {
             throw new ResourceNotFoundException("User not found");
         }
         userRepository.deleteById(id);
     }
+
 }
