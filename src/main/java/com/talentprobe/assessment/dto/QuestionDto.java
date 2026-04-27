@@ -1,22 +1,18 @@
 package com.talentprobe.assessment.dto;
 
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
+import com.talentprobe.assessment.enums.Difficulty;
+import com.talentprobe.assessment.enums.Language;
 import lombok.Data;
 
 import java.util.UUID;
 
 @Data
 public class QuestionDto {
-
     private UUID questionId;
-
-    @NotBlank
-    private String promptText;
-
-    @NotNull
-    private Integer defaultMarks;
-
-    @NotNull
-    private UUID assessmentId;
+    private String title;
+    private String description;
+    private Integer marks;
+    private Difficulty difficulty;
+    private Language language;
+    private String starterCode;
 }
