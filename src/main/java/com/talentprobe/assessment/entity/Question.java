@@ -1,5 +1,7 @@
 package com.talentprobe.assessment.entity;
 
+import com.talentprobe.assessment.enums.Difficulty;
+import com.talentprobe.assessment.enums.Language;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -21,12 +23,22 @@ public class Question {
     private UUID questionId;
 
     @Column(nullable = false)
-    private String promptText;
+    private String title;
+
+    @Column(nullable = false, columnDefinition = "TEXT")
+    private String description;
 
     @Column(nullable = false)
-    private Integer defaultMarks;
+    private Integer marks;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "assessment_id", nullable = false)
-    private Assessment assessment;
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private Difficulty difficulty;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private Language language;
+
+    @Column(nullable = false, columnDefinition = "TEXT")
+    private String starterCode;
 }
