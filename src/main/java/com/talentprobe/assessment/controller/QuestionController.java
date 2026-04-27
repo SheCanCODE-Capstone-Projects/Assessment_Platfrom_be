@@ -24,6 +24,11 @@ public class QuestionController {
         return ResponseEntity.status(HttpStatus.CREATED).body(questionService.createQuestion(request));
     }
 
+    @GetMapping
+    public ResponseEntity<List<QuestionDto>> getAllQuestions() {
+        return ResponseEntity.ok(questionService.getAllQuestions());
+    }
+
     @GetMapping("/{id}")
     public ResponseEntity<QuestionDto> getQuestionById(@PathVariable UUID id) {
         return ResponseEntity.ok(questionService.getQuestionById(id));

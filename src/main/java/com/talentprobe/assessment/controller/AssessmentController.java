@@ -2,6 +2,7 @@ package com.talentprobe.assessment.controller;
 
 import com.talentprobe.assessment.dto.AssessmentDto;
 import com.talentprobe.assessment.dto.AssessmentRequest;
+import com.talentprobe.assessment.enums.AssessmentStatus;
 import com.talentprobe.assessment.service.AssessmentService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -37,6 +38,16 @@ public class AssessmentController {
     @PutMapping("/{id}")
     public ResponseEntity<AssessmentDto> updateAssessment(@PathVariable UUID id, @Valid @RequestBody AssessmentRequest request) {
         return ResponseEntity.ok(assessmentService.updateAssessment(id, request));
+    }
+
+    @PatchMapping("/{id}/questions")
+    public ResponseEntity<AssessmentDto> assignQuestions(@PathVariable UUID id, @RequestBody List<UUID> questionIds) {
+        return ResponseEntity.ok(assessmentService.assignQuestions(id, questionIds));
+    }
+
+    @PatchMapping("/{id}/status")
+    public ResponseEntity<AssessmentDto> updateStatus(@PathVariable UUID id, @RequestParam AssessmentStatus status) {
+        return ResponseEntity.ok(assessmentService.updateStatus(id, status));
     }
 
     @DeleteMapping("/{id}")

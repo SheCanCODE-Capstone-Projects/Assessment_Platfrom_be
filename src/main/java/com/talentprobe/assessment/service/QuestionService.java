@@ -2,7 +2,6 @@ package com.talentprobe.assessment.service;
 
 import com.talentprobe.assessment.dto.QuestionDto;
 import com.talentprobe.assessment.dto.QuestionRequest;
-import com.talentprobe.assessment.entity.Assessment;
 import com.talentprobe.assessment.entity.Question;
 import com.talentprobe.assessment.mapper.QuestionMapper;
 import com.talentprobe.assessment.repository.AssessmentRepository;
@@ -23,16 +22,7 @@ public class QuestionService {
     private final QuestionMapper questionMapper;
 
     public QuestionDto createQuestion(QuestionRequest request) {
-        Assessment assessment = assessmentRepository.findById(request.getAssessmentId())
-                .orElseThrow(() -> new RuntimeException("Assessment not found with id: " + request.getAssessmentId()));
-
-        Question question = Question.builder()
-                .promptText(request.getPromptText())
-                .defaultMarks(request.getDefaultMarks())
-                .assessment(assessment)
-                .build();
-
-        return questionMapper.toDto(questionRepository.save(question));
+        return questionMapper.toDto(questionRepository.save(questionMapper.toEntity(request)));
     }
 
     public QuestionDto getQuestionById(UUID id) {
@@ -42,8 +32,17 @@ public class QuestionService {
         );
     }
 
+    public List<QuestionDto> getAllQuestions() {
+        return questionRepository.findAll()
+                .stream()
+                .map(questionMapper::toDto)
+                .collect(Collectors.toList());
+    }
+
     public List<QuestionDto> getQuestionsByAssessment(UUID assessmentId) {
-        return questionRepository.findByAssessment_AssessmentId(assessmentId)
+        return assessmentRepository.findById(assessmentId)
+                .orElseThrow(() -> new RuntimeException("Assessment not found with id: " + assessmentId))
+                .getQuestions()
                 .stream()
                 .map(questionMapper::toDto)
                 .collect(Collectors.toList());
@@ -52,13 +51,12 @@ public class QuestionService {
     public QuestionDto updateQuestion(UUID id, QuestionRequest request) {
         Question existing = questionRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Question not found with id: " + id));
-        existing.setPromptText(request.getPromptText());
-        existing.setDefaultMarks(request.getDefaultMarks());
-        if (!existing.getAssessment().getAssessmentId().equals(request.getAssessmentId())) {
-            Assessment assessment = assessmentRepository.findById(request.getAssessmentId())
-                    .orElseThrow(() -> new RuntimeException("Assessment not found with id: " + request.getAssessmentId()));
-            existing.setAssessment(assessment);
-        }
+        existing.setTitle(request.getTitle());
+        existing.setDescription(request.getDescription());
+        existing.setMarks(request.getMarks());
+        existing.setDifficulty(request.getDifficulty());
+        existing.setLanguage(request.getLanguage());
+        existing.setStarterCode(request.getStarterCode());
         return questionMapper.toDto(questionRepository.save(existing));
     }
 
