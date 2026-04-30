@@ -137,7 +137,7 @@ public class UserService {
     public void deleteUser(UUID id) {
         User user = getUserEntity(id);
 
-        // Rule 1: If deleting ADMIN, check if it's the last one
+        //  deleting ADMIN, check if it's the last one
         if (user.getRole() == Role.ADMIN) {
             long activeAdminCount = userRepository.countByRoleAndStatusNot(Role.ADMIN, Status.DELETED);
             if (activeAdminCount <= 1) {
@@ -145,7 +145,7 @@ public class UserService {
             }
         }
 
-        // Rule 2: Cannot delete yourself
+        //  Cannot delete themselves
         String currentEmail = SecurityContextHolder.getContext().getAuthentication().getName();
         if (user.getEmail().equals(currentEmail)) {
             throw new IllegalArgumentException("Cannot delete your own account. Ask another admin to delete it.");

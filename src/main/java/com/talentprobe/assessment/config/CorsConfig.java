@@ -23,11 +23,11 @@ public class CorsConfig {
         // Allow browser to send Authorization header
         config.setAllowCredentials(true);
 
-        // Cache preflight for 1 hour
+        // Cache prefligh
         config.setMaxAge(3600L);
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-        source.registerCorsConfiguration("/**", config); // Apply to all endpoints
+        source.registerCorsConfiguration("/**", config);
         return source;
     }
 }

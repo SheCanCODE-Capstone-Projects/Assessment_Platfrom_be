@@ -20,7 +20,7 @@ public interface UserRepository extends JpaRepository<User, UUID> {
     List<User> findByRoleAndStatusNotAndDeletedAtIsNull(Role role, Status status);
     Optional<User> findByUserIdAndStatusNotAndDeletedAtIsNull(UUID userId, Status status);
 
-    long countByRoleAndStatusNot(Role role, Status status); // Counts ACTIVE admins
+    long countByRoleAndStatusNot(Role role, Status status);
 
     List<User> findByRoleAndStatusAndDeletedAtIsNull(Role role, Status status);
     List<User> findByDeletedAtIsNull();

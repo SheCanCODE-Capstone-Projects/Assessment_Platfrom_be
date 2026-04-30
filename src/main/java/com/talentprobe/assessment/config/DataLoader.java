@@ -27,7 +27,7 @@ public class DataLoader implements CommandLineRunner {
 
     @Override
     public void run(String... args) {
-        // Only count ACTIVE admins, ignores DELETED ones
+
         long activeAdminCount = userRepository.countByRoleAndStatusNot(Role.ADMIN, Status.DELETED);
 
         if (activeAdminCount == 0) {
