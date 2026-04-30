@@ -12,14 +12,16 @@ import java.util.UUID;
 
 @Repository
 public interface UserRepository extends JpaRepository<User, UUID> {
-    Optional<User> findByEmail(String email);
 
     boolean existsByEmail(String email);
+    Optional<User> findByEmail(String email);
+    Optional<User> findByUserIdAndDeletedAtIsNull(UUID userId);
 
-    boolean existsByRole(Role role);
+    List<User> findByRoleAndStatusNotAndDeletedAtIsNull(Role role, Status status);
+    Optional<User> findByUserIdAndStatusNotAndDeletedAtIsNull(UUID userId, Status status);
 
-    // DataLoader needs it to check if admin exists
-    long countByRoleAndStatus(Role role, Status status);
+    long countByRoleAndStatusNot(Role role, Status status); // Counts ACTIVE admins
 
-    List<User> findByRoleAndStatus(Role role, Status status);
+    List<User> findByRoleAndStatusAndDeletedAtIsNull(Role role, Status status);
+    List<User> findByDeletedAtIsNull();
 }

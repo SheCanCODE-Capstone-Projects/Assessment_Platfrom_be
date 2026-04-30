@@ -27,13 +27,17 @@ public class DataLoader implements CommandLineRunner {
 
     @Override
     public void run(String... args) {
-        if (!userRepository.existsByRole(Role.ADMIN)) {
+        // Only count ACTIVE admins, ignores DELETED ones
+        long activeAdminCount = userRepository.countByRoleAndStatusNot(Role.ADMIN, Status.DELETED);
+
+        if (activeAdminCount == 0) {
             User superAdmin = User.builder()
                     .name("System Admin")
                     .email(adminEmail)
                     .password(passwordEncoder.encode(adminPassword))
                     .role(Role.ADMIN)
                     .status(Status.ACTIVE)
+                    .language(null)
                     .build();
             userRepository.save(superAdmin);
             System.out.println("Admin created: " + adminEmail);

@@ -2,39 +2,54 @@ package com.talentprobe.assessment.service;
 
 import com.talentprobe.assessment.dto.AuthResponse;
 import com.talentprobe.assessment.dto.LoginRequest;
+import com.talentprobe.assessment.dto.UserResponseDto;
 import com.talentprobe.assessment.entity.User;
-import com.talentprobe.assessment.enums.Role;
+import com.talentprobe.assessment.enums.Status;
+import com.talentprobe.assessment.exception.ResourceNotFoundException;
+import com.talentprobe.assessment.mapper.UserMapper;
 import com.talentprobe.assessment.repository.UserRepository;
+import com.talentprobe.assessment.util.JwtUtil;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
 public class AuthService {
 
+    private final AuthenticationManager authenticationManager;
+    private final JwtUtil jwtUtil;
     private final UserRepository userRepository;
-    private final PasswordEncoder passwordEncoder;
+    private final UserMapper userMapper;
 
     public AuthResponse login(LoginRequest request) {
+        Authentication authentication = authenticationManager.authenticate(
+                new UsernamePasswordAuthenticationToken(request.getEmail(), request.getPassword())
+        );
 
-        // 1. Find user by email
         User user = userRepository.findByEmail(request.getEmail())
-                .orElseThrow(() -> new RuntimeException("Invalid email"));
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
 
-        // 2. Check password
-        if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
-            throw new RuntimeException("Invalid password");
+        if (user.getStatus() != Status.ACTIVE) {
+            throw new IllegalStateException("Account is not active");
         }
 
-        // 3. Ensure ONLY ADMIN can login
-        if (user.getRole() != Role.ADMIN) {
-            throw new RuntimeException("Access denied: Only admin can login");
-        }
+        String token = jwtUtil.generateToken(
+                user.getEmail(),
+                user.getUserId().toString(),
+                user.getRole().name()
+        );
 
-        // 4. TEMP TOKEN
-        String token = "TEMP-TOKEN-" + user.getEmail();
+        return new AuthResponse(token, user.getRole());
+    }
 
-        return new AuthResponse(token);
+    public UserResponseDto getCurrentUser() {
+        String email = SecurityContextHolder.getContext().getAuthentication().getName();
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+        return userMapper.toResponseDto(user);
     }
 }

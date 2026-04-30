@@ -23,7 +23,7 @@ public class CorsConfig {
         // Allow browser to send Authorization header
         config.setAllowCredentials(true);
 
-        // Cache preflight for 1 hour = faster
+        // Cache preflight for 1 hour
         config.setMaxAge(3600L);
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();

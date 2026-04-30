@@ -1,60 +1,78 @@
 package com.talentprobe.assessment.entity;
 
+import com.talentprobe.assessment.enums.Language;
 import com.talentprobe.assessment.enums.Role;
 import com.talentprobe.assessment.enums.Status;
-import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
-import jakarta.validation.constraints.*;
-import lombok.*;
-import org.hibernate.annotations.UuidGenerator;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.experimental.SuperBuilder;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
 
-import java.time.LocalDateTime;
+import java.util.Collection;
+import java.util.List;
 import java.util.UUID;
 
 @Entity
 @Table(name = "users")
-@Data
+@Getter @Setter
+@SuperBuilder
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
-public class User {
-
+public class User extends BaseEntity implements UserDetails {
     @Id
-    @GeneratedValue
-    @UuidGenerator
+    @GeneratedValue(strategy = GenerationType.UUID)
+    @Column(name = "user_id")
     private UUID userId;
 
-    @NotBlank(message = "Name is required")
     @Column(nullable = false)
     private String name;
 
-    @Email(message = "Email should be valid")
-    @NotBlank(message = "Email is required")
     @Column(unique = true, nullable = false)
     private String email;
 
-    @Pattern(regexp = "^\\+?[0-9]{10,15}$", message = "Phone must be 10-15 digits")
-    @Column(nullable = true)
-    private String phoneNumber;
-
-    @NotBlank(message = "Password is required")
-    @Column(nullable = false)
-    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private String password;
 
-    @Builder.Default
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private Role role = Role.CANDIDATE;
+    private Role role;
 
-    @Builder.Default
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private Status status = Status.ACTIVE;
-    @Builder.Default
-    @Column(updatable = false, nullable = false)
-    private LocalDateTime createdAt = LocalDateTime.now();
+    private Status status;
 
-    @Column(nullable = true)
-    private String idDocumentPath;
+    @Column(name = "phone_number")
+    private String phoneNumber;
+
+    @Lob
+    @JdbcTypeCode(SqlTypes.VARBINARY)
+    @Column(name = "id_document", columnDefinition = "bytea")
+    private byte[] idDocument;
+
+    @Column(name = "id_document_name")
+    private String idDocumentName;
+
+    @Column(name = "id_document_type")
+    private String idDocumentType;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "language")
+    private Language language; // ENUM NOW
+
+    @Override
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        return List.of(new SimpleGrantedAuthority("ROLE_" + role.name()));
+    }
+
+    @Override public String getUsername() { return email; }
+    @Override public boolean isAccountNonExpired() { return true; }
+    @Override public boolean isAccountNonLocked() { return status != Status.INACTIVE; }
+    @Override public boolean isCredentialsNonExpired() { return true; }
+    @Override public boolean isEnabled() { return status == Status.ACTIVE; }
 }
