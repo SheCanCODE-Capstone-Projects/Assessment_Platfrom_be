@@ -1,4 +1,7 @@
 package com.talentprobe.assessment.enums;
 
-public class Status {
+public enum Status {
+    ACTIVE,
+    INACTIVE,
+    DELETED
 }
