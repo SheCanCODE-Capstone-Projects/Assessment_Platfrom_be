@@ -25,6 +25,7 @@ public class AssignmentResponseDTO {
     // Assignment details
     private String secureToken;
     private String accessLink;
+    private boolean invitationSent;
     private LocalDateTime linkExpiry;
     private LocalDateTime assignedAt;
 

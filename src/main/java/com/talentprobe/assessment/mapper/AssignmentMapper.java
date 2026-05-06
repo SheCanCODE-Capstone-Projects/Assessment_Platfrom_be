@@ -20,6 +20,7 @@ public class AssignmentMapper {
                 .candidateEmail(assignment.getCandidate().getEmail())
                 .accessLink(baseUrl + "/" + assignment.getSecureToken())
                 .secureToken(assignment.getSecureToken())
+                .invitationSent(assignment.isInvitationSent())
                 .linkExpiry(assignment.getLinkExpiry())
                 .assignedAt(assignment.getAssignedAt())
                 .build();

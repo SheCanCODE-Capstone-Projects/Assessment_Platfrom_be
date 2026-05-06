@@ -37,6 +37,9 @@ public class CandidateAssignment {
     @Column(name = "access_link")
     private String accessLink;
 
+    @Column(name = "invitation_sent", nullable = false)
+    private boolean invitationSent = false;
+
     @Column(name = "link_expiry", nullable = false)
     private LocalDateTime linkExpiry;
 
