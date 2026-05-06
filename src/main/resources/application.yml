@@ -15,6 +15,9 @@ spring:
 server:
   port: 8080
 
+app:
+  base-url: https://codeassess.com/exam
+
 jwt:
   secret: ${JWT_SECRET}
   expiration: ${JWT_EXPIRATION:86400000}
