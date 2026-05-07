@@ -18,8 +18,10 @@ jwt:
   expiration: ${JWT_EXPIRATION:86400000}
 
 brevo:
-  api:
-    key: ${BREVO_API_KEY}
+  api-key: ${BREVO_API_KEY}
   sender:
     email: ${BREVO_SENDER_EMAIL}
     name: ${BREVO_SENDER_NAME}
+
+app:
+  base-url: ${APP_BASE_URL}

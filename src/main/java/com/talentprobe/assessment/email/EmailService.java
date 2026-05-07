@@ -1,4 +1,7 @@
 package com.talentprobe.assessment.email;
 
-public class EmailService {
+public interface EmailService {
+    void sendInvitation(String email, String name, String link);
+    void sendReminder(String email, String name, String link);
+    void sendResult(String email, String name, String link);
 }
