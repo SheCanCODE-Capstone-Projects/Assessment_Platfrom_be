@@ -1,6 +1,7 @@
 package com.talentprobe.assessment.service;
 import com.talentprobe.assessment.dto.AssignmentRequestDTO;
 import com.talentprobe.assessment.dto.AssignmentResponseDTO;
+import com.talentprobe.assessment.dto.BulkAssignmentRequestDTO;
 import com.talentprobe.assessment.entity.Assessment;
 import com.talentprobe.assessment.entity.CandidateAssignment;
 import com.talentprobe.assessment.exception.ResourceNotFoundException;
@@ -13,6 +14,7 @@ import com.talentprobe.assessment.entity.User;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -109,4 +111,45 @@ public class AssignmentService {
                 .map(assignmentMapper::toResponseDTO)
                 .collect(Collectors.toList());
     }
-}
+    public List<AssignmentResponseDTO> assignMultipleCandidates(BulkAssignmentRequestDTO request) {
+
+        // Fetch Assessment from DB
+        Assessment assessment = assessmentRepository
+                .findById(request.getAssessmentId())
+                .orElseThrow(() -> new ResourceNotFoundException("Assessment not found"));
+
+        List<AssignmentResponseDTO> responses = new ArrayList<>();
+
+        // Loop through each candidate ID
+        for (UUID candidateId : request.getCandidateIds()) {
+
+            // Fetch each candidate
+            User candidate = userRepository
+                    .findByUserIdAndDeletedAtIsNull(candidateId)
+                    .orElseThrow(() -> new ResourceNotFoundException(
+                            "Candidate not found with id: " + candidateId));
+            // Generate token
+            String token = UUID.randomUUID().toString();
+
+            // Build access link
+            String accessLink = baseUrl + "/" + token;
+
+            // Build and save assignment
+            CandidateAssignment assignment = CandidateAssignment.builder()
+                    .assessment(assessment)
+                    .candidate(candidate)
+                    .secureToken(token)
+                    .accessLink(accessLink)
+                    .invitationSent(false)
+                    .linkExpiry(LocalDateTime.now().plusHours(48))
+                    .assignedAt(LocalDateTime.now())
+                    .build();
+            CandidateAssignment saved = assignmentRepository.save(assignment);
+            responses.add(assignmentMapper.toResponseDTO(saved));
+        }
+
+        return responses;
+    }
+
+        }
+

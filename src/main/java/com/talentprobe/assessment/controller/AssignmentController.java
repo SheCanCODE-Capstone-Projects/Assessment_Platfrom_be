@@ -2,6 +2,7 @@ package com.talentprobe.assessment.controller;
 
 import com.talentprobe.assessment.dto.AssignmentRequestDTO;
 import com.talentprobe.assessment.dto.AssignmentResponseDTO;
+import com.talentprobe.assessment.dto.BulkAssignmentRequestDTO;
 import com.talentprobe.assessment.service.AssignmentService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -75,6 +76,14 @@ public class AssignmentController {
         List<AssignmentResponseDTO> response = assignmentService
                 .getAssignmentsByAssessment(assessmentId);
         return ResponseEntity.ok(response);
+    }
+    @PostMapping("/bulk")
+    public ResponseEntity<List<AssignmentResponseDTO>> assignMultipleCandidates(
+            @RequestBody BulkAssignmentRequestDTO request) {
+
+        List<AssignmentResponseDTO> responses = assignmentService
+                .assignMultipleCandidates(request);
+        return new ResponseEntity<>(responses, HttpStatus.CREATED);
     }
 
 }
