@@ -31,7 +31,10 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/auth/**").permitAll()
                         .requestMatchers("/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html").permitAll()
-                        .requestMatchers(HttpMethod.POST, "/users").permitAll() // KEY: Public register
+                        .requestMatchers(HttpMethod.POST, "/users","/assessments/**","/auth/**","/questions/**","/api/assignments/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/users","/assessments/**","/auth/**","/questions/**","/api/assignments/**").permitAll()
+                        .requestMatchers(HttpMethod.PATCH, "/users","/assessments/**","/auth/**","/questions/**","/api/assignments/**").permitAll()// KEY: Public register
+                        .requestMatchers(HttpMethod.PUT, "/users","/assessments/**","/auth/**","/questions/**","/api/assignments/**").permitAll()
                         .anyRequest().authenticated()
                 );
         return http.build();

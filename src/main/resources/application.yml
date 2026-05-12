@@ -9,9 +9,14 @@ spring:
     hibernate:
       ddl-auto: update
     show-sql: true
+  profiles:
+    active: local
 
 server:
   port: ${SERVER_PORT:8080}
+
+app:
+  base-url: ${APP_BASE_URL}
 
 jwt:
   secret: ${JWT_SECRET}
@@ -22,6 +27,3 @@ brevo:
   sender:
     email: ${BREVO_SENDER_EMAIL}
     name: ${BREVO_SENDER_NAME}
-
-app:
-  base-url: ${APP_BASE_URL}
