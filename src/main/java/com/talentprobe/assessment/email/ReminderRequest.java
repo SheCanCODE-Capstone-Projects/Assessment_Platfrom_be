@@ -14,11 +14,15 @@ public class ReminderRequest {
     @Email(message = "Must be a valid email address")
     private String email;
 
-    @Schema(example = "ariane", requiredMode = Schema.RequiredMode.REQUIRED)
+    @Schema(example = "Ariane", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank(message = "Name is required")
     private String name;
 
     @Schema(example = "http://localhost:3000/exam/xyz789", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank(message = "Link is required")
     private String link;
+
+    @Schema(example = "2026-05-05 15:00", requiredMode = Schema.RequiredMode.REQUIRED)
+    @NotBlank(message = "End time is required")
+    private String endTime;
 }
