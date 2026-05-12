@@ -124,7 +124,7 @@ public class BrevoEmailService implements EmailService {
                     <div style="text-align:center;margin:32px 0;">
                         <a href="%s" 
                            style="background:#2563eb;color:#ffffff;padding:14px 32px;text-decoration:none;border-radius:6px;display:inline-block;font-weight:600;font-size:16px;">
-                            Continue Assessment
+                            Start Assessment
                         </a>
                     </div>
                     
