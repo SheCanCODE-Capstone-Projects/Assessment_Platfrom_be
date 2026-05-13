@@ -59,8 +59,10 @@ public class UserService {
         user.setStatus(Status.ACTIVE);
         user.setActivatedAt(LocalDateTime.now());
 
-        validateFile(dto.getIdDocument());
-        setDocument(user, dto.getIdDocument());
+        if (dto.getIdDocument() != null && !dto.getIdDocument().isEmpty()) {
+            validateFile(dto.getIdDocument());
+            setDocument(user, dto.getIdDocument());
+        }
 
         User saved = userRepository.save(user);
         return userMapper.toResponseDto(saved);
