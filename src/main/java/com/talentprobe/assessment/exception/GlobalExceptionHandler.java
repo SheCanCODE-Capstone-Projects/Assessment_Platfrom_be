@@ -17,60 +17,68 @@ import java.util.stream.Collectors;
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
+    // 404 - Resource not found
     @ExceptionHandler(ResourceNotFoundException.class)
     public ResponseEntity<ApiResponse> handleNotFound(ResourceNotFoundException ex) {
         return buildResponse(HttpStatus.NOT_FOUND, ex.getMessage());
     }
 
+    // 409 - Duplicate record
     @ExceptionHandler(DuplicateResourceException.class)
     public ResponseEntity<ApiResponse> handleDuplicate(DuplicateResourceException ex) {
         return buildResponse(HttpStatus.CONFLICT, ex.getMessage());
     }
 
+    // 400 - Invalid enum value.
     @ExceptionHandler(HttpMessageNotReadableException.class)
     public ResponseEntity<ApiResponse> handleInvalidEnum(HttpMessageNotReadableException ex) {
         String allowed = Arrays.stream(Language.values())
                 .map(Enum::name)
                 .collect(Collectors.joining(", "));
+
         String msg = "Invalid programming language. Allowed: " + allowed;
         return buildResponse(HttpStatus.BAD_REQUEST, msg);
     }
 
+    // 400 - @Valid validation errors
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ApiResponse> handleValidationException(MethodArgumentNotValidException ex) {
-        String message = ex.getBindingResult().getFieldErrors().stream()
+        String message = ex.getBindingResult().getFieldErrors()
+                .stream()
                 .map(e -> e.getField() + ": " + e.getDefaultMessage())
                 .reduce((a, b) -> a + "; " + b)
                 .orElse("Invalid input provided");
         return buildResponse(HttpStatus.BAD_REQUEST, message);
     }
 
-    @ExceptionHandler(IllegalArgumentException.class)
-    public ResponseEntity<ApiResponse> handleIllegalArgument(IllegalArgumentException ex) {
+    // 400 - Runtime business errors from services
+    @ExceptionHandler(RuntimeException.class)
+    public ResponseEntity<ApiResponse> handleRuntimeException(RuntimeException ex) {
         return buildResponse(HttpStatus.BAD_REQUEST, ex.getMessage());
     }
 
-    @ExceptionHandler(IOException.class)
-    public ResponseEntity<ApiResponse> handleIOException(IOException ex) {
-        return buildResponse(HttpStatus.BAD_REQUEST, "Failed to read uploaded file: " + ex.getMessage());
-    }
-
+    // 409 DB constraint violations
     @ExceptionHandler(DataIntegrityViolationException.class)
     public ResponseEntity<ApiResponse> handleDataIntegrityViolation(DataIntegrityViolationException ex) {
         String rootMsg = ex.getMostSpecificCause().getMessage().toLowerCase();
-        String friendlyMsg = "Unable to save data. Please verify your input.";
 
-        if (rootMsg.contains("unique") || rootMsg.contains("duplicate")) {
+        String friendlyMsg;
+        if (rootMsg.contains("users_language_check") || rootMsg.contains("language")) {
+            friendlyMsg = "Invalid programming language selected. Please choose from the available options.";
+        } else if (rootMsg.contains("unique") || rootMsg.contains("duplicate")) {
             friendlyMsg = "A record with this information already exists.";
         } else if (rootMsg.contains("foreign key")) {
             friendlyMsg = "The referenced item does not exist.";
         } else if (rootMsg.contains("not null")) {
             friendlyMsg = "Required information is missing.";
+        } else {
+            friendlyMsg = "Unable to save data. Please verify your input and try again.";
         }
 
         return buildResponse(HttpStatus.CONFLICT, friendlyMsg);
     }
 
+    // 500 - Everything else
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ApiResponse> handleGenericException(Exception ex) {
         return buildResponse(HttpStatus.INTERNAL_SERVER_ERROR,
