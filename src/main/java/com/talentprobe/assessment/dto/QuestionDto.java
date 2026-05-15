@@ -4,6 +4,7 @@ import com.talentprobe.assessment.enums.Difficulty;
 import com.talentprobe.assessment.enums.Language;
 import lombok.Data;
 
+import java.util.List;
 import java.util.UUID;
 
 @Data
@@ -15,4 +16,5 @@ public class QuestionDto {
     private Difficulty difficulty;
     private Language language;
     private String starterCode;
+    private List<TestCaseDto> testCases;
 }
