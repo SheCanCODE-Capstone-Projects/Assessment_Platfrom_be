@@ -20,6 +20,9 @@ public class CorsConfig {
         // Allow JWT header + Content-Type
         config.setAllowedHeaders(List.of("Authorization", "Content-Type"));
 
+        // Allow all origins for local development
+        config.setAllowedOriginPatterns(List.of("*"));
+
         // Allow browser to send Authorization header
         config.setAllowCredentials(true);
 

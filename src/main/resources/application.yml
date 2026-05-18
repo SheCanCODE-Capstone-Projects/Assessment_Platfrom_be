@@ -13,14 +13,17 @@ spring:
     active: local
 
 server:
-  port: ${SERVER_PORT:8080}
+  port: 8080
 
 app:
-  base-url: ${APP_BASE_URL}
+  base-url: https://codeassess.com/exam
 
 jwt:
   secret: ${JWT_SECRET}
   expiration: ${JWT_EXPIRATION:86400000}
+
+ADMIN_EMAIL: ${ADMIN_EMAIL}
+ADMIN_PASSWORD: ${ADMIN_PASSWORD}
 
 brevo:
   api-key: ${BREVO_API_KEY}

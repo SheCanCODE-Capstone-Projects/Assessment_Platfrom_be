@@ -11,6 +11,7 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.web.cors.CorsConfigurationSource;
 
 @Configuration
 @EnableWebSecurity
@@ -20,10 +21,12 @@ public class SecurityConfig {
 
     private final JwtAuthenticationFilter jwtAuthFilter;
     private final AuthenticationProvider authenticationProvider;
+    private final CorsConfigurationSource corsConfigurationSource;
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
+                .cors(cors -> cors.configurationSource(corsConfigurationSource))
                 .csrf(csrf -> csrf.disable())
                 .sessionManagement(sess -> sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authenticationProvider(authenticationProvider)
@@ -31,10 +34,10 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/auth/**").permitAll()
                         .requestMatchers("/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html").permitAll()
-                        .requestMatchers(HttpMethod.POST, "/users","/assessments/**","/auth/**","/questions/**","/api/assignments/**").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/users","/assessments/**","/auth/**","/questions/**","/api/assignments/**").permitAll()
-                        .requestMatchers(HttpMethod.PATCH, "/users","/assessments/**","/auth/**","/questions/**","/api/assignments/**").permitAll()// KEY: Public register
-                        .requestMatchers(HttpMethod.PUT, "/users","/assessments/**","/auth/**","/questions/**","/api/assignments/**").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/users","/assessments/**","/auth/**","/questions/**","/api/assignments/**","/api/attempt/**","/submissions/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/users","/assessments/**","/auth/**","/questions/**","/api/assignments/**","/api/attempt/**","/submissions/**").permitAll()
+                        .requestMatchers(HttpMethod.PATCH, "/users","/assessments/**","/auth/**","/questions/**","/api/assignments/**","/api/attempt/**","/submissions/**").permitAll()
+                        .requestMatchers(HttpMethod.PUT, "/users","/assessments/**","/auth/**","/questions/**","/api/assignments/**","/api/attempt/**","/submissions/**").permitAll()
                         .anyRequest().authenticated()
                 );
         return http.build();
