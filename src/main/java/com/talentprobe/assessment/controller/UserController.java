@@ -54,11 +54,8 @@ public class UserController {
             @Parameter(description = "Choose programming language", required = true, schema = @Schema(implementation = Language.class)) Language language,
 
             @RequestPart(value = "idDocument", required = false)
-            @Parameter(description = "Upload ID: PDF, JPG, PNG, max 10MB", required = true) MultipartFile idDocument
+            @Parameter(description = "Upload ID: PDF, JPG, PNG, max 10MB", required = false) MultipartFile idDocument
     ) throws IOException {
-        if (idDocument == null || idDocument.isEmpty()) {
-            throw new IllegalArgumentException("ID document is required");
-        }
 
         UserDto dto = new UserDto();
         dto.setName(name);
