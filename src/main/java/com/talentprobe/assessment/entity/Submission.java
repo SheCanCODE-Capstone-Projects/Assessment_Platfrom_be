@@ -1,5 +1,6 @@
 package com.talentprobe.assessment.entity;
 
+import com.talentprobe.assessment.enums.MarkingStatus;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -47,6 +48,12 @@ public class Submission {
     @Builder.Default
     private Boolean adminReviewed = false;
 
+    // PENDING when submitted, updated to PASSED or FAILED after scoring
+    @Enumerated(EnumType.STRING)
+    @Column(name = "marking_status", nullable = false)
+    @Builder.Default
+    private MarkingStatus markingStatus = MarkingStatus.PENDING;
+
     @Column(name = "submitted_at", nullable = false)
     private LocalDateTime submittedAt;
 
@@ -54,6 +61,9 @@ public class Submission {
     public void prePersist() {
         if (this.submittedAt == null) {
             this.submittedAt = LocalDateTime.now();
+        }
+        if (this.markingStatus == null) {
+            this.markingStatus = MarkingStatus.PENDING;
         }
     }
 }

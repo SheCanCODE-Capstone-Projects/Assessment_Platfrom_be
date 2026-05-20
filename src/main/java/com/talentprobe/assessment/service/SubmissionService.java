@@ -131,6 +131,14 @@ public class SubmissionService {
         submission.setScoreAwarded(request.getScoreAwarded());
         submission.setAdminReviewNote(request.getAdminReviewNote());
         submission.setAdminReviewed(true);
+
+        // Set markingStatus based on whether any marks were awarded
+        submission.setMarkingStatus(
+            request.getScoreAwarded() > 0
+                ? com.talentprobe.assessment.enums.MarkingStatus.PASSED
+                : com.talentprobe.assessment.enums.MarkingStatus.FAILED
+        );
+
         submission = submissionRepository.save(submission);
 
         // Mark coding submission as REVIEWED

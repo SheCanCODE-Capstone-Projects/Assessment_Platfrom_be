@@ -177,6 +177,90 @@ public class BrevoEmailService implements EmailService {
         send(email, name, "TalentProbe: Assessment Results", html);
     }
 
+    @Override
+    public void sendInterviewInvitationWithDate(String email, String name, String assessmentTitle, double percentage, java.time.LocalDateTime interviewDate) {
+        String formattedDate = interviewDate.format(java.time.format.DateTimeFormatter.ofPattern("dd MMMM yyyy 'at' HH:mm"));
+        String html = """
+            <!DOCTYPE html>
+            <html>
+            <head><meta charset="UTF-8"></head>
+            <body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; line-height:1.6; color:#1a1a1a; margin:0; padding:0;">
+                <div style="max-width:600px;margin:0 auto;padding:40px 24px;">
+                    <h1 style="font-size:24px;font-weight:600;color:#0f172a;margin:0 0 24px 0;">🎉 Congratulations — You Qualified!</h1>
+                    <p style="font-size:16px;margin:0 0 16px 0;">Dear %s,</p>
+                    <p style="font-size:16px;margin:0 0 24px 0;">
+                        You have successfully passed the <strong>%s</strong> assessment
+                        with a score of <strong>%.1f%%</strong>.
+                    </p>
+                    <div style="background:#f0fdf4;border:1px solid #86efac;border-radius:8px;padding:20px;margin:0 0 28px 0;">
+                        <p style="margin:0 0 8px 0;font-size:15px;color:#166534;">✅ <strong>Qualification Status:</strong> QUALIFIED FOR INTERVIEW</p>
+                        <p style="margin:0 0 8px 0;font-size:15px;color:#166534;">📊 <strong>Your Score:</strong> %.1f%%</p>
+                        <p style="margin:0;font-size:15px;color:#166534;">📅 <strong>Interview Date:</strong> %s</p>
+                    </div>
+                    <p style="font-size:16px;margin:0 0 24px 0;">
+                        Please prepare for your interview and make sure you are available on the selected date.
+                        Our team will contact you with further details.
+                    </p>
+                    <p style="font-size:16px;margin:40px 0 0 0;">
+                        Best regards,<br>The TalentProbe Team
+                    </p>
+                    <hr style="border:none;border-top:1px solid #e2e8f0;margin:40px 0 20px 0;">
+                    <p style="font-size:12px;color:#94a3b8;margin:0;">If you have questions, please contact our recruitment team.</p>
+                </div>
+            </body>
+            </html>
+            """.formatted(name, assessmentTitle, percentage, percentage, formattedDate);
+
+        send(email, name, "TalentProbe: Interview Invitation — " + formattedDate, html);
+    }
+
+    @Override
+    public void sendInterviewInvitation(String email, String name, String assessmentTitle, double percentage) {
+        String html = """
+            <!DOCTYPE html>
+            <html>
+            <head>
+                <meta charset="UTF-8">
+            </head>
+            <body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; line-height:1.6; color:#1a1a1a; margin:0; padding:0; background-color:#ffffff;">
+                <div style="max-width:600px;margin:0 auto;padding:40px 24px;">
+                    <h1 style="font-size:24px;font-weight:600;color:#0f172a;margin:0 0 24px 0;">🎉 Congratulations — You Passed!</h1>
+
+                    <p style="font-size:16px;margin:0 0 16px 0;">Dear %s,</p>
+
+                    <p style="font-size:16px;margin:0 0 24px 0;">
+                        We are pleased to inform you that you have successfully passed the
+                        <strong>%s</strong> assessment with a score of <strong>%.1f%%</strong>.
+                    </p>
+
+                    <div style="background:#f0fdf4;border:1px solid #86efac;border-radius:8px;padding:20px;margin:0 0 28px 0;">
+                        <p style="margin:0;font-size:15px;color:#166534;">
+                            ✅ Based on your performance, we would like to invite you to the next stage of our selection process — an <strong>interview</strong>.
+                        </p>
+                    </div>
+
+                    <p style="font-size:16px;margin:0 0 24px 0;">
+                        Our team will be in touch shortly with the interview schedule and further details.
+                        Please ensure your contact information is up to date.
+                    </p>
+
+                    <p style="font-size:16px;margin:40px 0 0 0;">
+                        Best regards,<br>
+                        The TalentProbe Team
+                    </p>
+
+                    <hr style="border:none;border-top:1px solid #e2e8f0;margin:40px 0 20px 0;">
+                    <p style="font-size:12px;color:#94a3b8;margin:0;">
+                        If you have any questions, please contact our recruitment team.
+                    </p>
+                </div>
+            </body>
+            </html>
+            """.formatted(name, assessmentTitle, percentage);
+
+        send(email, name, "TalentProbe: Interview Invitation — You Passed!", html);
+    }
+
     private void send(String toEmail, String name, String subject, String html) {
         try {
             HttpHeaders headers = new HttpHeaders();
