@@ -2,6 +2,7 @@ package com.talentprobe.assessment.dto;
 
 import com.talentprobe.assessment.enums.GradingStatus;
 import com.talentprobe.assessment.enums.Language;
+import com.talentprobe.assessment.enums.MarkingStatus;
 import lombok.Data;
 
 import java.time.LocalDateTime;
@@ -20,6 +21,7 @@ public class SubmissionDto {
     private Integer passedTestCases;
     private String adminReviewNote;
     private Boolean adminReviewed;
+    private MarkingStatus markingStatus;
     private LocalDateTime submittedAt;
 
     // CodingSubmission fields

@@ -21,6 +21,7 @@ public class SubmissionMapper {
         dto.setPassedTestCases(submission.getPassedTestCases());
         dto.setAdminReviewNote(submission.getAdminReviewNote());
         dto.setAdminReviewed(submission.getAdminReviewed());
+        dto.setMarkingStatus(submission.getMarkingStatus());
         dto.setSubmittedAt(submission.getSubmittedAt());
 
         // CodingSubmission fields
