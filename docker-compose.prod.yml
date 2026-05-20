@@ -5,39 +5,67 @@ services:
     image: postgres:17
     container_name: platform-db
     restart: unless-stopped
-    env_file: .env
+
+    env_file:
+      - .env
+
     environment:
-      POSTGRES_DB: ${DB_NAME}
+      POSTGRES_DB: assessment_platform
       POSTGRES_USER: ${DB_USERNAME}
       POSTGRES_PASSWORD: ${DB_PASSWORD}
+
+    ports:
+      - "5432:5432"
+
     volumes:
       - postgres_data:/var/lib/postgresql/data
+
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${DB_USERNAME} -d ${DB_NAME}"]
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USERNAME} -d assessment_platform"]
       interval: 10s
       timeout: 5s
       retries: 5
+
     networks:
       - app-network
 
   backend:
-    image: yvete/assessment_platform_be:latest
-    container_name: Assessment_platform_be
+    build:
+      context: .
+      dockerfile: Dockerfile
+
+    container_name: assessment-platform-be
+
     restart: unless-stopped
+
     depends_on:
       postgres:
         condition: service_healthy
-    env_file: .env
+
+    env_file:
+      - .env
+
     environment:
-      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/${DB_NAME}
-      SPRING_DATASOURCE_USERNAME: ${DB_USERNAME}
-      SPRING_DATASOURCE_PASSWORD: ${DB_PASSWORD}
+      DB_URL: jdbc:postgresql://postgres:5432/assessment_platform
+      DB_USERNAME: ${DB_USERNAME}
+      DB_PASSWORD: ${DB_PASSWORD}
 
       JWT_SECRET: ${JWT_SECRET}
-      SPRING_MAIL_USERNAME: ${MAIL_USERNAME}
-      SPRING_MAIL_PASSWORD: ${MAIL_PASSWORD}
+
+      ADMIN_EMAIL: ${ADMIN_EMAIL}
+      ADMIN_PASSWORD: ${ADMIN_PASSWORD}
+
+      BREVO_API_KEY: ${BREVO_API_KEY}
+      BREVO_SENDER_EMAIL: ${BREVO_SENDER_EMAIL}
+      BREVO_SENDER_NAME: ${BREVO_SENDER_NAME}
+
+      SPRING_PROFILES_ACTIVE: ${SPRING_PROFILES_ACTIVE}
+
+      APP_BASE_URL: ${APP_BASE_URL}
+
     ports:
-      - "8085:${BACKEND_PORT}"
+      - "8083:8080"
+
     networks:
       - app-network
 
