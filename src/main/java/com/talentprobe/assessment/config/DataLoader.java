@@ -12,7 +12,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
 @Component
-@Profile("!prod")
 @RequiredArgsConstructor
 public class DataLoader implements CommandLineRunner {
 
