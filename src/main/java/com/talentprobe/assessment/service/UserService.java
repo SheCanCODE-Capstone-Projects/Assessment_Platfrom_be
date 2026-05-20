@@ -1,9 +1,11 @@
 package com.talentprobe.assessment.service;
 
+import com.talentprobe.assessment.dto.BulkUploadResult;
 import com.talentprobe.assessment.dto.UserDto;
 import com.talentprobe.assessment.dto.UserPatchRequest;
 import com.talentprobe.assessment.dto.UserResponseDto;
 import com.talentprobe.assessment.entity.User;
+import com.talentprobe.assessment.enums.Language;
 import com.talentprobe.assessment.enums.Role;
 import com.talentprobe.assessment.enums.Status;
 import com.talentprobe.assessment.exception.DuplicateResourceException;
@@ -11,6 +13,11 @@ import com.talentprobe.assessment.exception.ResourceNotFoundException;
 import com.talentprobe.assessment.mapper.UserMapper;
 import com.talentprobe.assessment.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.ss.usermodel.WorkbookFactory;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -18,7 +25,9 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
@@ -50,8 +59,10 @@ public class UserService {
         user.setStatus(Status.ACTIVE);
         user.setActivatedAt(LocalDateTime.now());
 
-        validateFile(dto.getIdDocument());
-        setDocument(user, dto.getIdDocument());
+        if (dto.getIdDocument() != null && !dto.getIdDocument().isEmpty()) {
+            validateFile(dto.getIdDocument());
+            setDocument(user, dto.getIdDocument());
+        }
 
         User saved = userRepository.save(user);
         return userMapper.toResponseDto(saved);
@@ -137,15 +148,13 @@ public class UserService {
     public void deleteUser(UUID id) {
         User user = getUserEntity(id);
 
-        //  deleting ADMIN, check if it's the last one
         if (user.getRole() == Role.ADMIN) {
             long activeAdminCount = userRepository.countByRoleAndStatusNot(Role.ADMIN, Status.DELETED);
             if (activeAdminCount <= 1) {
-                throw new IllegalArgumentException("Cannot delete the last ACTIVE admin. Create another admin first, or use 'Replace Admin' endpoint.");
+                throw new IllegalArgumentException("Cannot delete the last ACTIVE admin. Create another admin first.");
             }
         }
 
-        //  Cannot delete themselves
         String currentEmail = SecurityContextHolder.getContext().getAuthentication().getName();
         if (user.getEmail().equals(currentEmail)) {
             throw new IllegalArgumentException("Cannot delete your own account. Ask another admin to delete it.");
@@ -166,7 +175,6 @@ public class UserService {
             throw new IllegalArgumentException("Only admin can replace themselves");
         }
 
-        // Check if new email already used by different user
         if (!admin.getEmail().equalsIgnoreCase(email) && userRepository.existsByEmail(email)) {
             throw new DuplicateResourceException("Email already used by another user");
         }
@@ -196,11 +204,77 @@ public class UserService {
         return userMapper.toResponseDto(user);
     }
 
+    @Transactional
+    public BulkUploadResult bulkUploadCandidates(MultipartFile file) throws IOException {
+        List<User> toSave = new ArrayList<>();
+        List<String> errors = new ArrayList<>();
+        int skipped = 0;
+
+        try (InputStream is = file.getInputStream()) {
+            Workbook workbook = WorkbookFactory.create(is);
+            Sheet sheet = workbook.getSheetAt(0);
+
+            for (int i = 1; i <= sheet.getLastRowNum(); i++) {
+                Row row = sheet.getRow(i);
+                if (row == null) continue;
+
+                String email = getCellString(row.getCell(0)).trim().toLowerCase();
+                String name = getCellString(row.getCell(1)).trim();
+                String phone = getCellString(row.getCell(2)).trim();
+                String lang = getCellString(row.getCell(3)).trim();
+
+                if (email.isBlank()) {
+                    errors.add("Row " + (i + 1) + ": email is empty");
+                    skipped++;
+                    continue;
+                }
+
+                if (userRepository.existsByEmail(email)) {
+                    errors.add("Row " + (i + 1) + ": " + email + " already exists");
+                    skipped++;
+                    continue;
+                }
+
+                try {
+                    User user = new User();
+                    user.setEmail(email);
+                    user.setName(name);
+                    user.setPhoneNumber(phone);
+                    user.setLanguage(Language.valueOf(lang.toUpperCase()));
+                    user.setRole(Role.CANDIDATE);
+                    user.setStatus(Status.ACTIVE);
+                    user.setActivatedAt(LocalDateTime.now());
+                    toSave.add(user);
+                } catch (IllegalArgumentException e) {
+                    errors.add("Row " + (i + 1) + ": Invalid language '" + lang + "'");
+                    skipped++;
+                } catch (Exception e) {
+                    errors.add("Row " + (i + 1) + ": " + e.getMessage());
+                    skipped++;
+                }
+            }
+        }
+
+        if (!toSave.isEmpty()) {
+            userRepository.saveAll(toSave);
+        }
+        return new BulkUploadResult(toSave.size(), skipped, errors);
+    }
+
+    private String getCellString(Cell cell) {
+        if (cell == null) return "";
+        return switch (cell.getCellType()) {
+            case STRING -> cell.getStringCellValue();
+            case NUMERIC -> String.valueOf((long) cell.getNumericCellValue());
+            case BOOLEAN -> String.valueOf(cell.getBooleanCellValue());
+            default -> "";
+        };
+    }
+
     private void validateFile(MultipartFile file) {
         if (file == null || file.isEmpty()) {
             throw new IllegalArgumentException("ID document is required");
         }
-
         if (file.getSize() > 10 * 1024 * 1024) {
             throw new IllegalArgumentException("File size must not exceed 10MB");
         }

@@ -10,10 +10,10 @@ spring:
       ddl-auto: update
     show-sql: true
   profiles:
-    active: local
+    active: ${SPRING_PROFILES_ACTIVE}
 
 server:
-  port: 8080
+  port: ${PORT:8080}
 
 app:
   base-url: https://codeassess.com/exam
@@ -21,3 +21,12 @@ app:
 jwt:
   secret: ${JWT_SECRET}
   expiration: ${JWT_EXPIRATION:86400000}
+
+ADMIN_EMAIL: ${ADMIN_EMAIL}
+ADMIN_PASSWORD: ${ADMIN_PASSWORD}
+
+brevo:
+  api-key: ${BREVO_API_KEY}
+  sender:
+    email: ${BREVO_SENDER_EMAIL}
+    name: ${BREVO_SENDER_NAME}

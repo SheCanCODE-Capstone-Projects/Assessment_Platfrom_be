@@ -6,6 +6,7 @@ import com.talentprobe.assessment.entity.Question;
 import com.talentprobe.assessment.mapper.QuestionMapper;
 import com.talentprobe.assessment.repository.AssessmentRepository;
 import com.talentprobe.assessment.repository.QuestionRepository;
+import com.talentprobe.assessment.repository.TestCaseRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -19,10 +20,13 @@ public class QuestionService {
 
     private final QuestionRepository questionRepository;
     private final AssessmentRepository assessmentRepository;
+    private final TestCaseRepository testCaseRepository;
     private final QuestionMapper questionMapper;
 
     public QuestionDto createQuestion(QuestionRequest request) {
-        return questionMapper.toDto(questionRepository.save(questionMapper.toEntity(request)));
+        Question saved = questionRepository.save(questionMapper.toEntity(request));
+        testCaseRepository.saveAll(questionMapper.toTestCaseEntities(request, saved));
+        return questionMapper.toDto(saved);
     }
 
     public QuestionDto getQuestionById(UUID id) {
@@ -57,13 +61,19 @@ public class QuestionService {
         existing.setDifficulty(request.getDifficulty());
         existing.setLanguage(request.getLanguage());
         existing.setStarterCode(request.getStarterCode());
-        return questionMapper.toDto(questionRepository.save(existing));
+        Question saved = questionRepository.save(existing);
+        if (request.getTestCases() != null) {
+            testCaseRepository.deleteAll(testCaseRepository.findByQuestion_QuestionId(id));
+            testCaseRepository.saveAll(questionMapper.toTestCaseEntities(request, saved));
+        }
+        return questionMapper.toDto(saved);
     }
 
     public void deleteQuestion(UUID id) {
         if (!questionRepository.existsById(id)) {
             throw new RuntimeException("Question not found with id: " + id);
         }
+        testCaseRepository.deleteAll(testCaseRepository.findByQuestion_QuestionId(id));
         questionRepository.deleteById(id);
     }
 }

@@ -6,6 +6,8 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 
+import java.util.List;
+
 @Data
 public class QuestionRequest {
 
@@ -26,4 +28,6 @@ public class QuestionRequest {
 
     @NotBlank
     private String starterCode;
+
+    private List<TestCaseRequest> testCases;
 }

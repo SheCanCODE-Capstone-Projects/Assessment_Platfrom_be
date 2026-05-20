@@ -1,9 +1,6 @@
 package com.talentprobe.assessment.controller;
 
-import com.talentprobe.assessment.dto.ApiResponse;
-import com.talentprobe.assessment.dto.UserDto;
-import com.talentprobe.assessment.dto.UserPatchRequest;
-import com.talentprobe.assessment.dto.UserResponseDto;
+import com.talentprobe.assessment.dto.*;
 import com.talentprobe.assessment.entity.User;
 import com.talentprobe.assessment.enums.Language;
 import com.talentprobe.assessment.enums.Status;
@@ -57,11 +54,8 @@ public class UserController {
             @Parameter(description = "Choose programming language", required = true, schema = @Schema(implementation = Language.class)) Language language,
 
             @RequestPart(value = "idDocument", required = false)
-            @Parameter(description = "Upload ID: PDF, JPG, PNG, max 10MB", required = true) MultipartFile idDocument
+            @Parameter(description = "Upload ID: PDF, JPG, PNG, max 10MB", required = false) MultipartFile idDocument
     ) throws IOException {
-        if (idDocument == null || idDocument.isEmpty()) {
-            throw new IllegalArgumentException("ID document is required");
-        }
 
         UserDto dto = new UserDto();
         dto.setName(name);
@@ -212,5 +206,15 @@ public class UserController {
     ) {
         UserResponseDto updated = userService.replaceAdmin(name, email, newPassword);
         return ResponseEntity.ok(ApiResponse.success("Admin credentials replaced successfully", updated));
+    }
+    @Tag(name = "Admin - User Management")
+    @SecurityRequirement(name = "bearerAuth")
+    @PreAuthorize("hasRole('ADMIN')")
+    @Operation(summary = "Bulk upload candidates from Excel")
+    @PostMapping(value = "/bulk-upload", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<ApiResponse<BulkUploadResult>> bulkUpload(
+            @RequestParam("file") MultipartFile file) throws IOException {
+        BulkUploadResult result = userService.bulkUploadCandidates(file);
+        return ResponseEntity.ok(ApiResponse.success("Bulk upload completed", result));
     }
 }

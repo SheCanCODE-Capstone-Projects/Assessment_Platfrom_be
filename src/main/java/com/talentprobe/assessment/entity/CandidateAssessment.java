@@ -50,6 +50,15 @@ public class CandidateAssessment {
     @Column(name = "percentage")
     private Double percentage;
 
+    // Set to true when candidate passes and qualifies for interview
+    @Column(name = "qualified")
+    @Builder.Default
+    private Boolean qualified = false;
+
+    // Admin sets this after candidate qualifies
+    @Column(name = "interview_date")
+    private LocalDateTime interviewDate;
+
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private Status status;
