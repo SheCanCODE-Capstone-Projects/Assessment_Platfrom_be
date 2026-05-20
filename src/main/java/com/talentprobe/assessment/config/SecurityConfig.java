@@ -32,13 +32,26 @@ public class SecurityConfig {
                 .authenticationProvider(authenticationProvider)
                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/auth/**").permitAll()
+
+                                        // Swagger
                         .requestMatchers("/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html").permitAll()
-                        .requestMatchers(HttpMethod.POST, "/users","/assessments/**","/auth/**","/questions/**","/api/assignments/**","/api/attempt/**","/submissions/**").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/users","/assessments/**","/auth/**","/questions/**","/api/assignments/**","/api/attempt/**","/submissions/**").permitAll()
-                        .requestMatchers(HttpMethod.PATCH, "/users","/assessments/**","/auth/**","/questions/**","/api/assignments/**","/api/attempt/**","/submissions/**").permitAll()
-                        .requestMatchers(HttpMethod.PUT, "/users","/assessments/**","/auth/**","/questions/**","/api/assignments/**","/api/attempt/**","/submissions/**").permitAll()
-                        .anyRequest().authenticated()
+                                        // Auth
+                        .requestMatchers("/auth/login").permitAll()
+                                        // Candidate registration
+                        .requestMatchers(HttpMethod.POST, "/users").permitAll()
+                                        // Candidate assessment flow (no token needed)
+                        .requestMatchers(HttpMethod.GET, "/api/assignments/validate").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/api/attempt/start").permitAll()
+                        .requestMatchers(HttpMethod.PUT, "/api/attempt/*/submit").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/attempt/*").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/attempt/candidate/*").permitAll()
+                                        // Candidate submissions (no token needed)
+                        .requestMatchers(HttpMethod.POST, "/submissions").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/submissions/*").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/submissions/attempt/*").permitAll()
+                                        // Everything else requires authentication
+                        .anyRequest().hasRole("ADMIN")
+
                 );
         return http.build();
     }
