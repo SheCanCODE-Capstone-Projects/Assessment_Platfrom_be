@@ -4,7 +4,6 @@ spring:
     username: ${DB_USERNAME}
     password: ${DB_PASSWORD}
     driver-class-name: org.postgresql.Driver
-
   jpa:
     hibernate:
       ddl-auto: update
@@ -30,3 +29,7 @@ brevo:
   sender:
     email: ${BREVO_SENDER_EMAIL}
     name: ${BREVO_SENDER_NAME}
+
+logging:
+  level:
+    org.springframework.security: DEBUG
