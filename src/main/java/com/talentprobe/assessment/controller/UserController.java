@@ -8,7 +8,6 @@ import com.talentprobe.assessment.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Schema;
-import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
@@ -34,27 +33,19 @@ import java.util.UUID;
 @RequestMapping("/users")
 @RequiredArgsConstructor
 @Validated
+@Tag(name = "2. User Management", description = "Candidate registration and admin user management")
 public class UserController {
+
     private final UserService userService;
 
-    @Tag(name = "Public - Candidate Registration")
-    @Operation(summary = "Register candidate", description = "All fields required.")
+    @Operation(summary = "Register candidate", description = "Public endpoint. All fields required.")
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<ApiResponse<UserResponseDto>> createCandidate(
-            @RequestParam("name") @NotBlank(message = "Name is required")
-            @Parameter(description = "Full name", required = true) String name,
-
-            @RequestParam("email") @Email(message = "Email must be valid") @NotBlank(message = "Email is required")
-            @Parameter(description = "Email address", required = true) String email,
-
-            @RequestParam("phoneNumber") @Pattern(regexp = "^\\+?[0-9]{10,15}$", message = "Phone number must be 10-15 digits") @NotBlank(message = "Phone number is required")
-            @Parameter(description = "Phone with country code", required = true) String phoneNumber,
-
-            @RequestParam("language") @NotNull(message = "Programming language is required")
-            @Parameter(description = "Choose programming language", required = true, schema = @Schema(implementation = Language.class)) Language language,
-
-            @RequestPart(value = "idDocument", required = false)
-            @Parameter(description = "Upload ID: PDF, JPG, PNG, max 10MB", required = false) MultipartFile idDocument
+            @RequestParam("name") @NotBlank String name,
+            @RequestParam("email") @Email @NotBlank String email,
+            @RequestParam("phoneNumber") @Pattern(regexp = "^\\+?[0-9]{10,15}$") @NotBlank String phoneNumber,
+            @RequestParam("language") @NotNull Language language,
+            @RequestPart(value = "idDocument", required = false) MultipartFile idDocument
     ) throws IOException {
 
         UserDto dto = new UserDto();
@@ -69,18 +60,14 @@ public class UserController {
                 .body(ApiResponse.success("Candidate registered successfully", created));
     }
 
-    @Tag(name = "Admin - User Management")
-    @SecurityRequirement(name = "bearerAuth")
     @PreAuthorize("hasRole('ADMIN')")
-    @Operation(summary = "Get all candidates", description = "ADMIN only. Returns CANDIDATE.")
+    @Operation(summary = "Get all candidates")
     @GetMapping
     public ResponseEntity<ApiResponse<List<UserResponseDto>>> getAllCandidates() {
         List<UserResponseDto> users = userService.getAllCandidates();
         return ResponseEntity.ok(ApiResponse.success("Successfully Retrieved", users));
     }
 
-    @Tag(name = "Admin - User Management")
-    @SecurityRequirement(name = "bearerAuth")
     @PreAuthorize("hasRole('ADMIN')")
     @GetMapping("/{id}")
     public ResponseEntity<ApiResponse<UserResponseDto>> getUserById(@PathVariable UUID id) {
@@ -88,25 +75,15 @@ public class UserController {
         return ResponseEntity.ok(ApiResponse.success("Successfully Retrieved", user));
     }
 
-    @Tag(name = "Admin - User Management")
-    @SecurityRequirement(name = "bearerAuth")
     @PreAuthorize("hasRole('ADMIN')")
-    @Operation(summary = "Full update candidate", description = "ADMIN only. All fields required.")
+    @Operation(summary = "Full update candidate")
     @PutMapping("/{id}")
     public ResponseEntity<ApiResponse<UserResponseDto>> updateUser(
             @PathVariable UUID id,
-
-            @RequestParam("name") @NotBlank(message = "Name is required")
-            @Parameter(description = "Full name", required = true) String name,
-
-            @RequestParam("email") @Email(message = "Email must be valid") @NotBlank(message = "Email is required")
-            @Parameter(description = "Email address", required = true) String email,
-
-            @RequestParam("phoneNumber") @Pattern(regexp = "^\\+?[0-9]{10,15}$", message = "Phone number must be 10-15 digits") @NotBlank(message = "Phone number is required")
-            @Parameter(description = "Phone with country code", required = true) String phoneNumber,
-
-            @RequestParam("language") @NotNull(message = "Programming language is required")
-            @Parameter(description = "Choose programming language", required = true, schema = @Schema(implementation = Language.class)) Language language
+            @RequestParam("name") @NotBlank String name,
+            @RequestParam("email") @Email @NotBlank String email,
+            @RequestParam("phoneNumber") @Pattern(regexp = "^\\+?[0-9]{10,15}$") @NotBlank String phoneNumber,
+            @RequestParam("language") @NotNull Language language
     ) {
         UserDto dto = new UserDto();
         dto.setName(name);
@@ -119,25 +96,15 @@ public class UserController {
         return ResponseEntity.ok(ApiResponse.success("Successfully Updated", updated));
     }
 
-    @Tag(name = "Admin - User Management")
-    @SecurityRequirement(name = "bearerAuth")
     @PreAuthorize("hasRole('ADMIN')")
     @Operation(summary = "Partial update candidate")
     @PatchMapping(value = "/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<ApiResponse<UserResponseDto>> patchUser(
             @PathVariable UUID id,
-
-            @RequestParam(value = "name", required = false)
-            @Parameter(description = "New full name", required = false) String name,
-
-            @RequestParam(value = "phoneNumber", required = false)
-            @Parameter(description = "New phone with country code", required = false) String phoneNumber,
-
-            @RequestParam(value = "language", required = false)
-            @Parameter(description = "Choose programming language", required = false, schema = @Schema(implementation = Language.class)) Language language,
-
-            @RequestPart(value = "idDocument", required = false)
-            @Parameter(description = "Upload new ID: PDF, JPG, PNG, max 10MB", required = false) MultipartFile idDocument
+            @RequestParam(value = "name", required = false) String name,
+            @RequestParam(value = "phoneNumber", required = false) String phoneNumber,
+            @RequestParam(value = "language", required = false) Language language,
+            @RequestPart(value = "idDocument", required = false) MultipartFile idDocument
     ) throws IOException {
         UserPatchRequest dto = new UserPatchRequest();
         dto.setName(name);
@@ -149,8 +116,6 @@ public class UserController {
         return ResponseEntity.ok(ApiResponse.success("Successfully Updated", updated));
     }
 
-    @Tag(name = "Admin - User Management")
-    @SecurityRequirement(name = "bearerAuth")
     @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping("/{id}")
     public ResponseEntity<ApiResponse<Void>> deleteUser(@PathVariable UUID id) {
@@ -158,8 +123,6 @@ public class UserController {
         return ResponseEntity.ok(ApiResponse.success("User deleted successfully", null));
     }
 
-    @Tag(name = "Admin - User Management")
-    @SecurityRequirement(name = "bearerAuth")
     @PreAuthorize("hasRole('ADMIN')")
     @PatchMapping("/{id}/activate")
     public ResponseEntity<ApiResponse<UserResponseDto>> activateUser(@PathVariable UUID id) {
@@ -167,8 +130,6 @@ public class UserController {
         return ResponseEntity.ok(ApiResponse.success("User activated successfully", updated));
     }
 
-    @Tag(name = "Admin - User Management")
-    @SecurityRequirement(name = "bearerAuth")
     @PreAuthorize("hasRole('ADMIN')")
     @PatchMapping("/{id}/deactivate")
     public ResponseEntity<ApiResponse<UserResponseDto>> deactivateUser(@PathVariable UUID id) {
@@ -176,10 +137,8 @@ public class UserController {
         return ResponseEntity.ok(ApiResponse.success("User deactivated successfully", updated));
     }
 
-    @Tag(name = "Admin - User Management")
-    @SecurityRequirement(name = "bearerAuth")
     @PreAuthorize("hasRole('ADMIN')")
-    @Operation(summary = "Download candidate ID document", description = "ADMIN only. Returns file with original name and type.")
+    @Operation(summary = "Download candidate ID document")
     @GetMapping("/{id}/id-document")
     public ResponseEntity<Resource> downloadIdDocument(@PathVariable UUID id) {
         User user = userService.getUserEntity(id);
@@ -194,11 +153,10 @@ public class UserController {
                 .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + filename + "\"")
                 .body(resource);
     }
-    @Tag(name = "Admin - Management")
-    @SecurityRequirement(name = "bearerAuth")
+
     @PreAuthorize("hasRole('ADMIN')")
     @PutMapping("/admin/replace")
-    @Operation(summary = "Replace admin credentials", description = "Use when admin is fired. Updates current admin's name/email/password.")
+    @Operation(summary = "Replace admin credentials")
     public ResponseEntity<ApiResponse<UserResponseDto>> replaceAdmin(
             @RequestParam @NotBlank String name,
             @RequestParam @Email @NotBlank String email,
@@ -207,8 +165,7 @@ public class UserController {
         UserResponseDto updated = userService.replaceAdmin(name, email, newPassword);
         return ResponseEntity.ok(ApiResponse.success("Admin credentials replaced successfully", updated));
     }
-    @Tag(name = "Admin - User Management")
-    @SecurityRequirement(name = "bearerAuth")
+
     @PreAuthorize("hasRole('ADMIN')")
     @Operation(summary = "Bulk upload candidates from Excel")
     @PostMapping(value = "/bulk-upload", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
