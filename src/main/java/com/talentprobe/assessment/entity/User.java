@@ -52,18 +52,18 @@ public class User extends BaseEntity implements UserDetails {
 
     @Lob
     @JdbcTypeCode(SqlTypes.VARBINARY)
-    @Column(name = "id_document", columnDefinition = "bytea")
+    @Column(name = "id_document", columnDefinition = "bytea", nullable = true)
     private byte[] idDocument;
 
-    @Column(name = "id_document_name")
+    @Column(name = "id_document_name", nullable = true)
     private String idDocumentName;
 
-    @Column(name = "id_document_type")
+    @Column(name = "id_document_type", nullable = true)
     private String idDocumentType;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "language")
-    private Language language; // ENUM NOW
+    private Language language;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {

@@ -26,7 +26,7 @@ public class UserDto {
     @Schema(requiredMode = Schema.RequiredMode.REQUIRED, description = "Choose programming language")
     private Language language;
 
-    @NotNull(message = "ID document is required")
-    @Schema(type = "string", format = "binary", requiredMode = Schema.RequiredMode.REQUIRED, description = "PDF, JPG, PNG only, max 10MB")
+    @Schema(type = "string", format = "binary", requiredMode = Schema.RequiredMode.NOT_REQUIRED,
+            description = "PDF, JPG, PNG only, max 10MB. Optional")
     private MultipartFile idDocument;
 }

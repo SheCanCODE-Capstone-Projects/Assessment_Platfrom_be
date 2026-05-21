@@ -273,7 +273,7 @@ public class UserService {
 
     private void validateFile(MultipartFile file) {
         if (file == null || file.isEmpty()) {
-            throw new IllegalArgumentException("ID document is required");
+            return; // file is optional now
         }
         if (file.getSize() > 10 * 1024 * 1024) {
             throw new IllegalArgumentException("File size must not exceed 10MB");
