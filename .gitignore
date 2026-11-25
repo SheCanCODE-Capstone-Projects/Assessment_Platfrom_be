@@ -35,5 +35,7 @@ build/
 application-local.yaml
 src/main/resources/application-local.yaml
 .gitignore
-config.bat
 node_modules
+.vscode/
+.env
+.env.*
